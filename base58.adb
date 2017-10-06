@@ -64,17 +64,30 @@ package body Base58 is
     end loop;
     return Output;
   end;
+  -------------------------
+  -- Count_Leading_Zeros --
+  -------------------------
+  function Count_Leading_Zeros (Items : in Code_Type_Array) return Natural is
+    Output : Natural := 0;
+  begin
+    for I in Items'Range loop
+      exit when Items (I) /= 0;
+      Output := Natural'Succ (Output);
+    end loop;
+    return Output;
+  end;
 
   ------------------------
   -- Trim_Leading_Zeros --
   ------------------------
   function Trim_Leading_Zeros (Items : in Byte_Array) return Byte_Array is (Items (Items'First + Count_Leading_Zeros (Items) .. Items'Last));
+  function Trim_Leading_Zeros (Items : in Code_Type_Array) return Code_Type_Array is (Items (Items'First + Count_Leading_Zeros (Items) .. Items'Last));
 
   ------------------------
   -- To_Code_Type_Array --
   ------------------------
   function To_Code_Type_Array (Item : in Byte_Array) return Code_Type_Array is
-    Codes        : Code_Type_Array (1 .. Item'Length * 138 / 100) := (others => 0);
+    Codes        : Code_Type_Array (1 .. Item'Length * 138 / 100 + 1) := (others => 0);
     Codes_Length : Natural := 0;
   begin
     for Byte of Item loop
@@ -92,7 +105,7 @@ package body Base58 is
         Codes_Length := Codes_Visited;
       end;
     end loop;
-    return Codes;
+    return Trim_Leading_Zeros (Codes);
   end;
 
   ------------
@@ -131,7 +144,7 @@ package body Base58 is
   -- To_Byte_Array --
   -------------------
   function To_Byte_Array (Item : in Encoded_String) return Byte_Array is
-    Bytes         : Byte_Array (1 .. Item'Length * 733 /1000) := (others => 0);
+    Bytes         : Byte_Array (1 .. Item'Length * 733 /1000 + 1) := (others => 0);
     Bytes_Length  : Natural := 0;
   begin
     for Encoded of Item loop
@@ -150,7 +163,7 @@ package body Base58 is
         Bytes_Length := Bytes_Visited;
       end;
     end loop;
-    return Bytes;
+    return Trim_Leading_Zeros (Bytes);
   end;
 
   ------------
